@@ -6,13 +6,14 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 35%),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 25%),
-    #020617;
+  background: #020617;
   color: #e2e8f0;
   font-family:
     Inter,
@@ -23,14 +24,19 @@ body {
     sans-serif;
 }
 
-.connection-line {
-  height: 3px;
-  background: linear-gradient(90deg, #22c55e, #38bdf8, #22c55e);
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.glass-panel {
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  backdrop-filter: blur(18px);
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Dashboard from "./components/Dashboard.jsx";
 import AlertPanel from "./components/AlertPanel.jsx";
-import { Activity, RadioTower, ShieldAlert } from "lucide-react";
+import {
+  Activity,
+  RadioTower,
+  ShieldAlert,
+  Waves,
+  Wifi,
+  Server,
+  AlertTriangle
+} from "lucide-react";
 
 const API_URL = "http://localhost:3000";
 
@@ -25,86 +33,107 @@ export default function App() {
       const dataNodos = await resNodos.json();
       const dataAlertas = await resAlertas.json();
 
-      setNodos(dataNodos.nodos);
-      setAlertas(dataAlertas.alertas);
+      setNodos(dataNodos.nodos || []);
+      setAlertas(dataAlertas.alertas || []);
       setActualizado(dataNodos.actualizado);
       setError(null);
     } catch (err) {
-      setError("Backend no disponible. Verifica que Express esté corriendo en el puerto 3000.");
+      setError("No se pudo conectar con el backend. Ejecuta el servidor en http://localhost:3000");
     }
   }
 
   useEffect(() => {
     cargarDatos();
-
-    const intervalo = setInterval(() => {
-      cargarDatos();
-    }, 3000);
-
+    const intervalo = setInterval(cargarDatos, 3000);
     return () => clearInterval(intervalo);
   }, []);
 
-  const nodosCriticos = nodos.filter((nodo) => nodo.estado === "Critico").length;
-  const nodosPrecaucion = nodos.filter((nodo) => nodo.estado === "Precaucion").length;
+  const resumen = useMemo(() => {
+    return {
+      total: nodos.length,
+      normales: nodos.filter((n) => n.estado === "Normal").length,
+      precaucion: nodos.filter((n) => n.estado === "Precaucion").length,
+      criticos: nodos.filter((n) => n.estado === "Critico").length
+    };
+  }, [nodos]);
 
   return (
-    <main className="min-h-screen px-4 py-6 md:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <main className="min-h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute left-[-10%] top-[-20%] h-[500px] w-[500px] rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute bottom-[-20%] right-[-10%] h-[520px] w-[520px] rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:42px_42px]" />
+      </div>
+
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-8">
         <AlertPanel alerta={alertas[0]} />
 
-        <header className="glass-panel rounded-3xl p-6 shadow-2xl">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl md:p-8">
+          <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200">
                 <RadioTower size={18} />
-                Red IoT Multi-hop con Telemetría LoRa simulada
+                Red IoT Multi-hop con telemetría LoRa simulada
               </div>
 
-              <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">
-                RiverWatch Mesh
+              <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">
+                RiverWatch <span className="text-cyan-300">Mesh</span>
               </h1>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 md:text-base">
-                Sistema de Alerta Temprana ante Inundaciones con sensores distribuidos,
-                retransmisión por saltos y monitoreo ciudadano en tiempo real.
+              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
+                Monitoreo inteligente de niveles de agua mediante nodos distribuidos,
+                retransmisión por saltos y alertamiento ciudadano en tiempo real.
               </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Badge icon={<Wifi size={16} />} text="Nodo 3 → Nodo 2 → Nodo 1" />
+                <Badge icon={<Server size={16} />} text="Servidor Ciudad" />
+                <Badge icon={<Waves size={16} />} text="Umbral crítico: 4.0 m" />
+              </div>
+
+              {actualizado && (
+                <p className="mt-5 text-sm text-slate-400">
+                  Última actualización:{" "}
+                  <span className="font-semibold text-slate-200">
+                    {new Date(actualizado).toLocaleString("es-MX")}
+                  </span>
+                </p>
+              )}
+
+              {error && (
+                <div className="mt-5 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+                  {error}
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              <StatusCard
-                icon={<Activity size={22} />}
-                label="Nodos activos"
-                value={nodos.length}
-                tone="cyan"
+            <div className="grid grid-cols-2 gap-3">
+              <MetricCard
+                title="Nodos activos"
+                value={resumen.total}
+                icon={<Activity />}
+                className="border-cyan-400/30 bg-cyan-400/10 text-cyan-200"
               />
-
-              <StatusCard
-                icon={<ShieldAlert size={22} />}
-                label="Precaución"
-                value={nodosPrecaucion}
-                tone="yellow"
+              <MetricCard
+                title="Normales"
+                value={resumen.normales}
+                icon={<ShieldAlert />}
+                className="border-green-400/30 bg-green-400/10 text-green-200"
               />
-
-              <StatusCard
-                icon={<ShieldAlert size={22} />}
-                label="Críticos"
-                value={nodosCriticos}
-                tone="red"
+              <MetricCard
+                title="Precaución"
+                value={resumen.precaucion}
+                icon={<AlertTriangle />}
+                className="border-yellow-400/30 bg-yellow-400/10 text-yellow-200"
+              />
+              <MetricCard
+                title="Críticos"
+                value={resumen.criticos}
+                icon={<ShieldAlert />}
+                className="border-red-400/30 bg-red-400/10 text-red-200"
               />
             </div>
           </div>
-
-          {actualizado && (
-            <p className="mt-5 text-xs text-slate-400">
-              Última sincronización: {new Date(actualizado).toLocaleString("es-MX")}
-            </p>
-          )}
-
-          {error && (
-            <div className="mt-5 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
-              {error}
-            </div>
-          )}
         </header>
 
         <Dashboard nodos={nodos} alertas={alertas} />
@@ -113,18 +142,23 @@ export default function App() {
   );
 }
 
-function StatusCard({ icon, label, value, tone }) {
-  const tones = {
-    cyan: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
-    yellow: "border-yellow-400/30 bg-yellow-400/10 text-yellow-200",
-    red: "border-red-400/30 bg-red-400/10 text-red-200"
-  };
-
+function Badge({ icon, text }) {
   return (
-    <div className={`rounded-2xl border p-4 ${tones[tone]}`}>
-      <div className="mb-2">{icon}</div>
-      <p className="text-xs uppercase tracking-widest opacity-80">{label}</p>
-      <p className="mt-1 text-3xl font-black">{value}</p>
+    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-slate-300">
+      {icon}
+      {text}
+    </div>
+  );
+}
+
+function MetricCard({ title, value, icon, className }) {
+  return (
+    <div className={`rounded-3xl border p-5 shadow-xl ${className}`}>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="rounded-2xl bg-black/20 p-3">{icon}</div>
+        <p className="text-4xl font-black">{value}</p>
+      </div>
+      <p className="text-sm font-bold uppercase tracking-widest opacity-80">{title}</p>
     </div>
   );
 }
