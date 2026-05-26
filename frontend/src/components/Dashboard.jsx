@@ -37,8 +37,8 @@ export default function Dashboard({ nodos, alertas }) {
   const historialCombinado = crearHistorialCombinado(nodosOrdenados);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
+    <div className="grid gap-6 2xl:grid-cols-[1.35fr_0.85fr]">
+      <section className="min-w-0 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-2xl font-black text-white">
@@ -56,40 +56,42 @@ export default function Dashboard({ nodos, alertas }) {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_0.9fr] lg:items-center">
-          {nodosOrdenados.map((nodo, index) => (
-            <div key={nodo.id} className="contents">
-              <NodeCard nodo={nodo} />
+        <div className="overflow-x-auto pb-4">
+          <div className="flex min-w-[1100px] items-stretch gap-4">
+            {nodosOrdenados.map((nodo, index) => (
+              <div key={nodo.id} className="flex items-center gap-4">
+                <NodeCard nodo={nodo} />
 
-              {index < nodosOrdenados.length - 1 && (
-                <HopLine label="Salto LoRa" />
-              )}
+                {index < nodosOrdenados.length - 1 && (
+                  <HopLine label="Salto LoRa" />
+                )}
+              </div>
+            ))}
+
+            <HopLine label="Gateway" />
+
+            <div className="flex min-w-[230px] flex-col justify-center rounded-3xl border border-sky-300/30 bg-sky-400/10 p-5 text-center shadow-[0_0_35px_rgba(56,189,248,0.22)]">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-sky-400/15">
+                <Server size={38} className="text-sky-300" />
+              </div>
+              <h3 className="font-black text-white">Servidor Ciudad</h3>
+              <p className="mt-1 text-xs text-slate-400">Backend Express</p>
+              <p className="mt-3 rounded-full bg-sky-400/10 px-3 py-1 text-xs font-bold text-sky-200">
+                API REST
+              </p>
             </div>
-          ))}
-
-          <HopLine label="Gateway" />
-
-          <div className="rounded-3xl border border-sky-300/30 bg-sky-400/10 p-5 text-center shadow-[0_0_35px_rgba(56,189,248,0.22)]">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-sky-400/15">
-              <Server size={38} className="text-sky-300" />
-            </div>
-            <h3 className="font-black text-white">Servidor Ciudad</h3>
-            <p className="mt-1 text-xs text-slate-400">Backend Express</p>
-            <p className="mt-3 rounded-full bg-sky-400/10 px-3 py-1 text-xs font-bold text-sky-200">
-              API REST
-            </p>
           </div>
         </div>
       </section>
 
-      <aside className="space-y-6">
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
+      <aside className="grid gap-6 xl:grid-cols-2 2xl:grid-cols-1">
+        <section className="min-w-0 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
           <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-white">
             <Waves className="text-blue-300" />
             Nivel actual por nodo
           </h2>
 
-          <div className="h-72">
+          <div className="h-72 min-w-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dataGrafica}>
                 <defs>
@@ -120,7 +122,7 @@ export default function Dashboard({ nodos, alertas }) {
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="mt-4 grid grid-cols-1 gap-2 text-center text-xs md:grid-cols-3">
             <div className="rounded-xl bg-green-400/10 p-2 font-semibold text-green-200">
               Normal &lt; 3.0m
             </div>
@@ -133,13 +135,13 @@ export default function Dashboard({ nodos, alertas }) {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
+        <section className="min-w-0 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
           <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-white">
             <Gauge className="text-emerald-300" />
             Historial reciente
           </h2>
 
-          <div className="h-64">
+          <div className="h-64 min-w-0">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={historialCombinado}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.15)" />
@@ -161,7 +163,7 @@ export default function Dashboard({ nodos, alertas }) {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl">
+        <section className="min-w-0 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl xl:col-span-2 2xl:col-span-1">
           <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-white">
             <BellRing className="text-red-300" />
             Registro de alertas
@@ -217,7 +219,7 @@ function NodeCard({ nodo }) {
   const porcentaje = Math.min((nodo.nivelAgua / 6) * 100, 100);
 
   return (
-    <article className={`rounded-3xl border p-5 transition-all duration-300 hover:-translate-y-1 ${estilo.card}`}>
+    <article className={`min-w-[250px] rounded-3xl border p-5 transition-all duration-300 hover:-translate-y-1 ${estilo.card}`}>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-black text-white">{nodo.nombre}</h3>
@@ -265,10 +267,9 @@ function NodeCard({ nodo }) {
 
 function HopLine({ label }) {
   return (
-    <div className="flex items-center justify-center gap-2 text-cyan-300 lg:flex-col">
-      <div className="hidden h-[3px] w-20 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 shadow-[0_0_18px_rgba(56,189,248,0.8)] lg:block" />
-      <ArrowRight className="hidden lg:block" size={18} />
-      <div className="h-8 w-[3px] rounded-full bg-gradient-to-b from-cyan-400 to-emerald-400 shadow-[0_0_18px_rgba(56,189,248,0.8)] lg:hidden" />
+    <div className="flex min-w-[90px] flex-col items-center justify-center gap-1 text-cyan-300">
+      <div className="h-[3px] w-20 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 shadow-[0_0_18px_rgba(56,189,248,0.8)]" />
+      <ArrowRight size={18} />
       <p className="text-[10px] font-black uppercase tracking-widest">{label}</p>
     </div>
   );
